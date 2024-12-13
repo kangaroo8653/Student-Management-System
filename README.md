@@ -2,7 +2,7 @@
 # Student Management System 学生管理系统
 
 A simple [student management system](https://github.com/kangaroo8653/Student-Management-System). (For demonstration only)  
-一个简单的信息管理系统。（仅供演示）
+一个简单的学生管理系统。（仅供演示）
 
 ## Deployment
 
