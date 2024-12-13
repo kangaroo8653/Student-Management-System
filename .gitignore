@@ -26,7 +26,7 @@ backend/.env
 backend/*.pyc
 backend/*.pyo
 backend/*.pyd
-backend/*.db
+# backend/*.db
 backend/*.sqlite3
 backend/instance/
 backend/.pytest_cache/
