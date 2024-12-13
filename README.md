@@ -1,8 +1,8 @@
 
 # Student Management System 学生管理系统
 
-A simple student information management system. (For demonstration only)  
-一个简单的学生信息管理系统。（仅供演示）
+A simple [student management system](https://www.github.com/kangaroo8653/Student-Management-System). (For demonstration only)  
+一个简单的信息管理系统。（仅供演示）
 
 ## Deployment
 
@@ -44,3 +44,10 @@ To deploy this project run
 #### Question 1 这个项目有什么用?
 
 期末大作业
+
+
+## Authors
+
+- [kangaroo8653](https://github.com/kangaroo8653)@qq.com
+
+
