@@ -107,6 +107,17 @@
         <div class="text-sm text-gray-500">当前用户：{{ userStore.username }}</div>
       </div>
     </el-card>
+
+    <!-- 版权信息 -->
+    <div class="mt-4 text-center text-sm text-gray-500">
+      <a
+        href="https://github.com/kangaroo8653/Student-Management-System"
+        target="_blank"
+        class="hover:text-blue-500 transition-colors"
+      >
+        © 2024 kangaroo8653. Licensed under the MIT License.
+      </a>
+    </div>
   </div>
 </template>
 
