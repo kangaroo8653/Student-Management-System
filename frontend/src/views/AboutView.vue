@@ -88,15 +88,6 @@
             </div>
           </div>
         </section>
-
-        <!-- 版本信息 -->
-        <section class="text-gray-600">
-          <h3 class="text-xl font-medium mb-4 text-gray-800">版本信息</h3>
-          <el-descriptions :column="1" border>
-            <el-descriptions-item label="当前版本">v1.0.0</el-descriptions-item>
-            <el-descriptions-item label="更新日期">2024-12-13</el-descriptions-item>
-          </el-descriptions>
-        </section>
       </div>
     </el-card>
   </div>
