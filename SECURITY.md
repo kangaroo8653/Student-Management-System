@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-all
+latest
 
 ## Reporting a Vulnerability
 
