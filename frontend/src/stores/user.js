@@ -6,8 +6,8 @@ import { defineStore } from 'pinia'
 export const useUserStore = defineStore('user', {
   // 状态定义
   state: () => ({
-    username: localStorage.getItem('username') || '',
-    isAuthenticated: !!localStorage.getItem('username')
+    username: '',
+    isAuthenticated: false
   }),
 
   // 计算属性
@@ -25,25 +25,20 @@ export const useUserStore = defineStore('user', {
     login(username) {
       this.username = username
       this.isAuthenticated = true
-      localStorage.setItem('username', username)
     },
 
     // 用户登出：清除用户信息
     logout() {
       this.username = ''
       this.isAuthenticated = false
-      localStorage.removeItem('username')
     },
 
     // 检查登录状态
     checkAuth() {
-      const username = localStorage.getItem('username')
-      if (username) {
-        this.username = username
-        this.isAuthenticated = true
-        return true
-      }
-      return false
+      return this.isAuthenticated
     }
-  }
+  },
+
+  // 开启状态自动持久化
+  persist: true
 })
