@@ -4,15 +4,14 @@ import { studentService } from '@/services/api'
 
 /**
  * 创建学生操作相关的方法
- * @param {Array} students - 学生列表数据
  * @param {Function} fetchStudents - 获取学生列表的方法
  * @param {Ref} selectedStudents - 选中的学生列表
  * @returns {Object} 包含删除学生相关的方法
  */
-export function useStudentOperations(students, fetchStudents, selectedStudents) {
+export function useStudentOperations(fetchStudents, selectedStudents) {
   /**
    * 删除单个学生
-   * @param {number|string} id - 学生ID
+   * @param {number} id - 学生ID
    */
   const deleteStudent = async id => {
     try {
