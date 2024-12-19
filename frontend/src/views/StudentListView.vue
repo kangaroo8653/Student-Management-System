@@ -190,10 +190,7 @@
   const { debouncedFn: debouncedFetchStudents } = useDebounce(fetchStudents, 300)
 
   // 表格操作方法
-  const { deleteStudent, handleBatchDelete } = useStudentOperations(
-    fetchStudents,
-    selectedStudents
-  )
+  const { deleteStudent, handleBatchDelete } = useStudentOperations(fetchStudents, selectedStudents)
 
   // 表格选择处理
   const handleSelectionChange = selection => {
