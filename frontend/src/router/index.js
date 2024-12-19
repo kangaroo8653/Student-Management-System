@@ -66,7 +66,7 @@ const router = createRouter({
 })
 
 // 全局路由守卫：处理身份验证
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _, next) => {
   const userStore = useUserStore()
 
   // 检查页面是否需要认证
