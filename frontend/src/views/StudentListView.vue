@@ -191,7 +191,6 @@
 
   // 表格操作方法
   const { deleteStudent, handleBatchDelete } = useStudentOperations(
-    students,
     fetchStudents,
     selectedStudents
   )
