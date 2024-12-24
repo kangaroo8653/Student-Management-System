@@ -2,7 +2,15 @@
 from flask import Blueprint, request, jsonify
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import func
+import logging
 from .models import Student, get_db
+
+# 配置日志
+logging.basicConfig(
+    level=logging.ERROR,
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
 
 # 创建蓝图
 students_bp = Blueprint('students', __name__)
@@ -10,48 +18,63 @@ students_bp = Blueprint('students', __name__)
 @students_bp.route('/login', methods=['POST'])
 def login():
     """用户登录,固定用户名密码,admin/password"""
-    data = request.json
-    if data.get('username') == 'admin' and data.get('password') == 'password':
-        return jsonify({'success': True, 'message': '登录成功'})
-    return jsonify({'success': False, 'message': '用户名或密码错误'}), 401
+    try:
+        data = request.json
+        if data.get('username') == 'admin' and data.get('password') == 'password':
+            return jsonify({'success': True, 'message': '登录成功'})
+        return jsonify({'success': False, 'message': '用户名或密码错误'}), 401
+    except Exception as e:
+        logging.error(f"登录失败: {str(e)}")
+        return jsonify({'error': '登录失败，请联系系统管理员'}), 500
 
 @students_bp.route('/students', methods=['GET'])
 def get_students():
     """获取学生列表，支持分页和搜索"""
-    # 获取查询参数
-    page = int(request.args.get('page', 1))
-    per_page = int(request.args.get('per_page', 10))
-    search = request.args.get('search', '')
+    try:
+        # 获取查询参数
+        page = int(request.args.get('page', 1))
+        per_page = int(request.args.get('per_page', 10))
+        search = request.args.get('search', '')
 
-    with get_db() as db:
-        # 构建查询
-        query = db.query(Student)
-        if search:
-            query = query.filter(
-                (Student.name.contains(search)) | 
-                (Student.email.contains(search))
-            )
-        
-        # 执行分页查询
-        total = query.count()
-        students = query.offset((page-1)*per_page).limit(per_page).all()
-        
-        return jsonify({
-            'students': [student.to_dict() for student in students],
-            'total': total,
-            'page': page,
-            'per_page': per_page,
-            'allowed_page_sizes': [10, 20, 50, 100]
-        })
+        with get_db() as db:
+            # 构建查询
+            query = db.query(Student)
+            if search:
+                query = query.filter(
+                    (Student.name.contains(search)) | 
+                    (Student.email.contains(search))
+                )
+            
+            # 执行分页查询
+            total = query.count()
+            students = query.offset((page-1)*per_page).limit(per_page).all()
+            
+            return jsonify({
+                'students': [student.to_dict() for student in students],
+                'total': total,
+                'page': page,
+                'per_page': per_page,
+                'allowed_page_sizes': [10, 20, 50, 100]
+            })
+    except ValueError as e:
+        logging.error(f"分页参数错误: {str(e)}")
+        return jsonify({'error': '分页参数无效'}), 400
+    except Exception as e:
+        logging.error(f"获取学生列表失败: {str(e)}")
+        return jsonify({'error': '获取学生列表失败，请联系系统管理员'}), 500
 
 @students_bp.route('/students/<int:student_id>', methods=['GET'])
 def get_student(student_id):
     """获取单个学生信息"""
-    with get_db() as db:
-        student = db.query(Student).get(student_id)
-        if not student:
-            return jsonify({'error': '未找到该学生'}), 404
-        return jsonify(student.to_dict())
+    try:
+        with get_db() as db:
+            student = db.query(Student).get(student_id)
+            if not student:
+                return jsonify({'error': '未找到该学生'}), 404
+            return jsonify(student.to_dict())
+    except Exception as e:
+        logging.error(f"获取学生信息失败: {str(e)}")
+        return jsonify({'error': '获取学生信息失败，请联系系统管理员'}), 500
 
 @students_bp.route('/students', methods=['POST'])
 def create_student():
@@ -66,7 +89,8 @@ def create_student():
     except IntegrityError:
         return jsonify({'error': '邮箱已存在'}), 400
     except Exception as e:
-        return jsonify({'error': str(e)}), 400
+        logging.error(f"创建学生失败: {str(e)}")
+        return jsonify({'error': '创建学生失败，请联系系统管理员'}), 500
 
 @students_bp.route('/students/<int:student_id>', methods=['PUT'])
 def update_student(student_id):
@@ -86,40 +110,53 @@ def update_student(student_id):
     except IntegrityError:
         return jsonify({'error': '邮箱已存在'}), 400
     except Exception as e:
-        return jsonify({'error': str(e)}), 400
+        logging.error(f"更新学生信息失败: {str(e)}")
+        return jsonify({'error': '更新学生信息失败，请联系系统管理员'}), 500
 
 @students_bp.route('/students/<int:student_id>', methods=['DELETE'])
 def delete_student(student_id):
     """删除学生"""
-    with get_db() as db:
-        student = db.query(Student).get(student_id)
-        if not student:
-            return jsonify({'error': '未找到该学生'}), 404
-        db.delete(student)
-        db.commit()
-        return '', 204
+    try:
+        with get_db() as db:
+            student = db.query(Student).get(student_id)
+            if not student:
+                return jsonify({'error': '未找到该学生'}), 404
+            db.delete(student)
+            db.commit()
+            return '', 204
+    except Exception as e:
+        logging.error(f"删除学生失败: {str(e)}")
+        return jsonify({'error': '删除学生失败，请联系系统管理员'}), 500
 
 @students_bp.route('/statistics', methods=['GET'])
 def get_statistics():
     """获取统计信息：总人数、平均年龄、年级分布"""
-    with get_db() as db:
-        total = db.query(Student).count()
-        avg_age = db.query(func.avg(Student.age)).scalar()
-        grades = db.query(Student.grade, func.count(Student.grade))\
-            .group_by(Student.grade).all()
-        
-        return jsonify({
-            'total_students': total,
-            'average_age': float(avg_age) if avg_age else 0,
-            'grade_distribution': dict(grades)
-        })
+    try:
+        with get_db() as db:
+            total = db.query(Student).count()
+            avg_age = db.query(func.avg(Student.age)).scalar()
+            grades = db.query(Student.grade, func.count(Student.grade))\
+                .group_by(Student.grade).all()
+            
+            return jsonify({
+                'total_students': total,
+                'average_age': float(avg_age) if avg_age else 0,
+                'grade_distribution': dict(grades)
+            })
+    except Exception as e:
+        logging.error(f"获取统计信息失败: {str(e)}")
+        return jsonify({'error': '获取统计信息失败，请联系系统管理员'}), 500
 
 @students_bp.route('/backup', methods=['GET'])
 def backup_database():
     """导出数据库内容"""
-    with get_db() as db:
-        students = db.query(Student).all()
-        return jsonify({'backup': [s.to_dict() for s in students]})
+    try:
+        with get_db() as db:
+            students = db.query(Student).all()
+            return jsonify({'backup': [s.to_dict() for s in students]})
+    except Exception as e:
+        logging.error(f"数据库备份失败: {str(e)}")
+        return jsonify({'error': '数据库备份失败，请联系系统管理员'}), 500
 
 @students_bp.route('/restore', methods=['POST'])
 def restore_database():
@@ -135,12 +172,17 @@ def restore_database():
             db.commit()
             return jsonify({'message': '数据恢复成功'})
     except Exception as e:
-        return jsonify({'error': str(e)}), 400
+        logging.error(f"数据库恢复失败: {str(e)}")
+        return jsonify({'error': '数据库恢复失败，请联系系统管理员'}), 500
 
 @students_bp.route('/reset-database', methods=['POST'])
 def reset_database():
     """清空数据库"""
-    with get_db() as db:
-        db.query(Student).delete()
-        db.commit()
-        return jsonify({'message': '数据库已重置'})
+    try:
+        with get_db() as db:
+            db.query(Student).delete()
+            db.commit()
+            return jsonify({'message': '数据库已重置'})
+    except Exception as e:
+        logging.error(f"数据库重置失败: {str(e)}")
+        return jsonify({'error': '数据库重置失败，请联系系统管理员'}), 500
