@@ -26,7 +26,6 @@ To deploy this project run
 ### 后端（Backend）
 - 基于 Python Flask 框架开发
 - 使用 SQLAlchemy 作为 ORM 框架
-- 采用 SQLite 数据库（students.db）存储数据
 - 实现了 RESTful API 接口
 
 ### 前端（Frontend）
